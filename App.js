@@ -5,6 +5,8 @@ import wrongSound from './Sound/wrong.mp3';
 import gunshotSound from './Sound/gunshot.mp3';
 import gameOverSound from './Sound/gameover.mp3';
 
+// Made by Vandit Jain (@Theonedit) - Crafted on cursor.ai, powered by claude-3.5-sonnet, and fueled by green ball bursting enthusiasm!
+
 const GREEN_COLOR = '#eaff0c';
 const GAME_DURATION = 60000; // 1 minute in milliseconds
 const BALL_SIZE = 20; // Assuming the ball size is 20px as per CSS
@@ -250,10 +252,12 @@ function App() {
             position: 'absolute',
             bottom: '10px',
             right: '10px',
-            fontSize: '12px',
-            color: '#666'
+            fontSize: '14px',
+            color: '#333',
+            zIndex: 10,
+            textShadow: '1px 1px 2px white',
           }}>
-            Crafted with 💚 by Vandit Jain (@TheOneDit) | Cursor.ai + Claude = Magic!
+            Made with 💚 by Vandit Jain @Theonedit, powered by Cursor + Claude = Magic
           </div>
         </>
       ) : showLeaderboard ? (
@@ -313,6 +317,17 @@ function App() {
           >
             End Game
           </button>
+          <div style={{
+            position: 'absolute',
+            bottom: '10px',
+            right: '10px',
+            fontSize: '14px',
+            color: '#333',
+            zIndex: 10,
+            textShadow: '1px 1px 2px white',
+          }}>
+            With 💚 Vandit Jain @Theonedit, Cursor + Claude = Magic
+          </div>
           {gameOver && (
             <div className="game-over-popup" style={{
               position: 'fixed',
