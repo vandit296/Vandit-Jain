@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import './App.css';
 import tikTokSound from './Sound/tiktok.mp3';
 import wrongSound from './Sound/wrong.mp3';
@@ -19,7 +19,6 @@ function App() {
   const [timeLeft, setTimeLeft] = useState(GAME_DURATION);
   const [balls, setBalls] = useState([]);
   const [gameStarted, setGameStarted] = useState(false);
-  const [gameOver, setGameOver] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [playerName, setPlayerName] = useState('');
   const [playerTwitter, setPlayerTwitter] = useState('');
@@ -36,6 +35,20 @@ function App() {
   const [showSharePopup, setShowSharePopup] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
+  const [gameOver, setGameOver] = useState(false);
+
+  const endGame = useCallback(() => {
+    setGameOver(true);
+    setGameStarted(false);
+    audioRef.current.pause();
+    audioRef.current.currentTime = 0;
+    slytherinAudioRef.current.pause();
+    slytherinAudioRef.current.currentTime = 0;
+    gameOverAudioRef.current.play();
+    setBackgroundColor('white');
+    setDarkMode(false);
+  }, [setGameOver, setGameStarted, setBackgroundColor, setDarkMode]);
+
   useEffect(() => {
     // Load leaderboard from localStorage when component mounts
     const savedLeaderboard = localStorage.getItem('leaderboard');
@@ -47,24 +60,27 @@ function App() {
   useEffect(() => {
     if (gameStarted && timeLeft > 0) {
       const timer = setTimeout(() => setTimeLeft(prev => prev - 1000), 1000);
+      const currentAudioRef = audioRef.current;
+      const currentSlytherinAudioRef = slytherinAudioRef.current;
+
       if (timeLeft > 0) {
         if (gameMode === 'slytherin') {
-          slytherinAudioRef.current.play();
+          currentSlytherinAudioRef.play();
         } else {
-          audioRef.current.play();
+          currentAudioRef.play();
         }
       }
       return () => {
         clearTimeout(timer);
-        audioRef.current.pause();
-        audioRef.current.currentTime = 0;
-        slytherinAudioRef.current.pause();
-        slytherinAudioRef.current.currentTime = 0;
+        currentAudioRef.pause();
+        currentAudioRef.currentTime = 0;
+        currentSlytherinAudioRef.pause();
+        currentSlytherinAudioRef.currentTime = 0;
       };
     } else if (timeLeft === 0) {
       endGame();
     }
-  }, [gameStarted, timeLeft, gameMode]);
+  }, [gameStarted, timeLeft, gameMode, endGame]);
 
   useEffect(() => {
     if (gameStarted) {
@@ -183,6 +199,8 @@ function App() {
   };
 
   const renderBigGreenBalls = () => {
+    if (isMobile) return null; // Don't render on mobile
+
     const bigBalls = [];
     for (let i = 0; i < 5; i++) {
       bigBalls.push(
@@ -279,18 +297,6 @@ function App() {
     setShowLeaderboard(true);
   };
 
-  const endGame = () => {
-    setGameOver(true);
-    setGameStarted(false);
-    audioRef.current.pause();
-    audioRef.current.currentTime = 0;
-    slytherinAudioRef.current.pause();
-    slytherinAudioRef.current.currentTime = 0;
-    gameOverAudioRef.current.play();
-    setBackgroundColor('white');
-    setDarkMode(false);
-  };
-
   const renderLeaderboardBalls = (score) => {
     const rows = Math.ceil(score / 20);
     return (
@@ -372,8 +378,22 @@ function App() {
     closeSharePopup();
   };
 
+  const getMobileStyles = () => {
+    if (!isMobile) return {};
+
+    return {
+      fontSize: '0.9rem',
+      padding: '5px',
+    };
+  };
+
   return (
-    <div className="App" style={{ backgroundColor: (gameMode === 'beast' || gameMode === 'slytherin') ? backgroundColor : (darkMode ? 'black' : 'white'), color: darkMode ? 'white' : 'black', fontFamily: 'Lato, sans-serif' }}>
+    <div className="App" style={{ 
+      backgroundColor: (gameMode === 'beast' || gameMode === 'slytherin') ? backgroundColor : (darkMode ? 'black' : 'white'), 
+      color: darkMode ? 'white' : 'black', 
+      fontFamily: 'Lato, sans-serif',
+      ...getMobileStyles() // Apply mobile styles
+    }}>
       <button 
         onClick={goHome}
         style={{
@@ -441,7 +461,7 @@ function App() {
       >
         Leaderboard
       </button>
-      <h1 style={{ fontFamily: 'Bungee Shade, cursive', fontSize: '3rem' }}>BGB - Burst Green Balls</h1>
+      <h1 style={{ fontFamily: 'Bungee Shade, cursive', fontSize: isMobile ? '2rem' : '3rem' }}>BGB - Burst Green Balls</h1>
       {!gameStarted && !gameOver && !showLeaderboard ? (
         <>
           <div className="game-rules" style={{ backgroundColor: darkMode ? '#333' : '#f2f2f2', color: darkMode ? 'white' : 'black', fontFamily: 'Poppins, sans-serif' }}>
@@ -528,12 +548,8 @@ function App() {
             </button>
           </div>
           {renderBigGreenBalls()}
-          <div className="credits">
-            {isMobile ? (
-              <>Made with 💚 by @Theonedit</>
-            ) : (
-              <>Made with 💚 by Vandit Jain @Theonedit, powered by Cursor + Claude = Magic</>
-            )}
+          <div className="credits" style={{ fontSize: isMobile ? '0.8rem' : '1rem' }}>
+            Made with 💚 by Vandit Jain @Theonedit, powered by Cursor + Claude = Magic
           </div>
         </>
       ) : showLeaderboard ? (
@@ -571,9 +587,9 @@ function App() {
         </div>
       ) : (
         <>
-          <div style={{ fontFamily: 'Orbitron, sans-serif', fontSize: '1.2rem' }}>Level: {level}</div>
-          <div style={{ fontFamily: 'Orbitron, sans-serif', fontSize: '1.2rem' }}>Score: {score}</div>
-          <div style={{ fontFamily: 'Orbitron, sans-serif', fontSize: '1.2rem' }}>Time Left: {timeLeft / 1000}s</div>
+          <div style={{ fontFamily: 'Orbitron, sans-serif', fontSize: isMobile ? '1rem' : '1.2rem', marginBottom: isMobile ? '5px' : '10px' }}>Level: {level}</div>
+          <div style={{ fontFamily: 'Orbitron, sans-serif', fontSize: isMobile ? '1rem' : '1.2rem', marginBottom: isMobile ? '5px' : '10px' }}>Score: {score}</div>
+          <div style={{ fontFamily: 'Orbitron, sans-serif', fontSize: isMobile ? '1rem' : '1.2rem', marginBottom: isMobile ? '5px' : '10px' }}>Time Left: {timeLeft / 1000}s</div>
           <div className="game-area">
             {balls.map(ball => (
               <div
@@ -600,9 +616,9 @@ function App() {
           <button 
             onClick={endGame}
             style={{
-              marginTop: '20px',
-              padding: '10px',
-              fontSize: '16px',
+              marginTop: isMobile ? '10px' : '20px',
+              padding: isMobile ? '5px' : '10px',
+              fontSize: isMobile ? '14px' : '16px',
               cursor: 'pointer'
             }}
           >
