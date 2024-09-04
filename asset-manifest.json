@@ -1,0 +1,18 @@
+{
+  "files": {
+    "main.css": "/Vandit-Jain/static/css/main.cff71372.css",
+    "main.js": "/Vandit-Jain/static/js/main.826a21d1.js",
+    "static/media/Slytherin.mp3": "/Vandit-Jain/static/media/Slytherin.14d092978fd0cffba399.mp3",
+    "static/media/tiktok.mp3": "/Vandit-Jain/static/media/tiktok.10694425191797eb2aee.mp3",
+    "static/media/gameover.mp3": "/Vandit-Jain/static/media/gameover.21c74c34f50a8ecedde0.mp3",
+    "static/media/gunshot.mp3": "/Vandit-Jain/static/media/gunshot.36eda79aec64011bd58f.mp3",
+    "static/media/wrong.mp3": "/Vandit-Jain/static/media/wrong.836d44bdeb10a3b2315b.mp3",
+    "index.html": "/Vandit-Jain/index.html",
+    "main.cff71372.css.map": "/Vandit-Jain/static/css/main.cff71372.css.map",
+    "main.826a21d1.js.map": "/Vandit-Jain/static/js/main.826a21d1.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.cff71372.css",
+    "static/js/main.826a21d1.js"
+  ]
+}
