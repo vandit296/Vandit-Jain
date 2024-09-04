@@ -2,10 +2,7 @@
   "name": "game",
   "version": "0.1.0",
   "private": true,
-<<<<<<< HEAD
   "homepage": "https://vandit296.github.io/Vandit-Jain",
-=======
->>>>>>> 3192573ce0c24320063f5e5f0fc0d90a260d54ab
   "dependencies": {
     "cra-template": "1.2.0",
     "react": "^18.3.1",
@@ -16,13 +13,9 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-<<<<<<< HEAD
     "eject": "react-scripts eject",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build"
-=======
-    "eject": "react-scripts eject"
->>>>>>> 3192573ce0c24320063f5e5f0fc0d90a260d54ab
   },
   "eslintConfig": {
     "extends": [
