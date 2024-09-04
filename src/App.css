@@ -1,0 +1,123 @@
+.App {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+
+.game-rules {
+  width: 300px;
+  text-align: left;
+  padding: 20px;
+  background-color: #f0f0f0;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  display: block;
+}
+
+.game-rules h2 {
+  color: #333;
+}
+
+.game-rules ul {
+  padding-left: 20px;
+}
+
+.game-rules li {
+  margin-bottom: 10px;
+}
+
+.game-content {
+  width: 100%;
+  max-width: 500px;
+}
+
+.target-color {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: #A4DE02;
+  margin: 20px auto;
+}
+
+.game-area {
+  width: 100%;
+  height: 500px;
+  border: 2px solid black;
+  position: relative;
+  margin: 20px auto;
+  overflow: hidden;
+}
+
+.ball {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  position: absolute;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.level-indicator {
+  font-size: 24px;
+  font-weight: bold;
+  margin: 20px 0;
+}
+
+.timer {
+  font-size: 20px;
+  color: #ff0000;
+  margin-bottom: 20px;
+}
+
+.start-button {
+  font-size: 18px;
+  padding: 10px 20px;
+  margin: 20px 0;
+}
+
+/* Styles for ball scaling based on level */
+.ball-level-1 {
+  transform: scale(1);
+}
+
+.ball-level-2 {
+  transform: scale(0.9);
+}
+
+.ball-level-3 {
+  transform: scale(0.8);
+}
+
+.ball-level-4 {
+  transform: scale(0.7);
+}
+
+.ball-level-5 {
+  transform: scale(0.6);
+}
+
+/* Add more levels as needed */
+
+/* Style for level transition animation */
+@keyframes levelTransition {
+  0% { opacity: 0; transform: scale(0.5); }
+  50% { opacity: 1; transform: scale(1.2); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.level-transition {
+  animation: levelTransition 1s ease-out;
+}
+
+/* Style for timer reset animation */
+@keyframes timerReset {
+  0% { color: #00ff00; }
+  50% { color: #ffff00; }
+  100% { color: #ff0000; }
+}
+
+.timer-reset {
+  animation: timerReset 0.5s ease-out;
+}
