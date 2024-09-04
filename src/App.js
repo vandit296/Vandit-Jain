@@ -34,6 +34,7 @@ function App() {
   const gameOverAudioRef = useRef(new Audio(gameOverSound));
   const slytherinAudioRef = useRef(new Audio(slytherinSound));
   const [showSharePopup, setShowSharePopup] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
   useEffect(() => {
     // Load leaderboard from localStorage when component mounts
@@ -83,6 +84,15 @@ function App() {
     }
     return () => clearInterval(intervalId);
   }, [gameMode, gameStarted, darkMode]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const generateBalls = (mode, currentLevel) => {
     const baseBalls = mode === 'beast' || mode === 'slytherin' ? 10 : 5;
@@ -340,19 +350,17 @@ function App() {
   const shareToSocialMedia = (platform) => {
     let shareUrl = '';
     const message = `I just spotted ${score} green balls in ${gameMode} mode on BGB - Burst Green Balls! Can you beat my score?`;
-    const url = 'https://yourgameurl.com'; // Replace with your actual game URL
-    const imageUrl = `https://yourgameurl.com/score-images/${score}.png`; // Replace with your image generation URL
+    const url = 'https://vandit296.github.io/Vandit-Jain/'; // Replace with your actual game URL
 
     switch (platform) {
       case 'twitter':
-        shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(message)}&url=${encodeURIComponent(url)}&media=${encodeURIComponent(imageUrl)}`;
+        shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(message)}&url=${encodeURIComponent(url)}`;
         break;
       case 'facebook':
-        // Facebook doesn't allow adding images via URL parameters, so we'll just include the link
         shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(message)}`;
         break;
       case 'linkedin':
-        shareUrl = `https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(url)}&title=${encodeURIComponent('BGB - Burst Green Balls')}&summary=${encodeURIComponent(message)}&source=${encodeURIComponent(imageUrl)}`;
+        shareUrl = `https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(url)}&title=${encodeURIComponent('BGB - Burst Green Balls')}&summary=${encodeURIComponent(message)}`;
         break;
       default:
         break;
@@ -520,16 +528,12 @@ function App() {
             </button>
           </div>
           {renderBigGreenBalls()}
-          <div style={{
-            position: 'absolute',
-            bottom: '10px',
-            right: '10px',
-            fontSize: '14px',
-            color: darkMode ? 'white' : '#333',
-            zIndex: 10,
-            textShadow: darkMode ? '1px 1px 2px black' : '1px 1px 2px white',
-          }}>
-            Made with 💚 by Vandit Jain @Theonedit, powered by Cursor + Claude = Magic
+          <div className="credits">
+            {isMobile ? (
+              <>Made with 💚 by @Theonedit</>
+            ) : (
+              <>Made with 💚 by Vandit Jain @Theonedit, powered by Cursor + Claude = Magic</>
+            )}
           </div>
         </>
       ) : showLeaderboard ? (
