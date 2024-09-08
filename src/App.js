@@ -5,6 +5,7 @@ import wrongSound from './Sound/wrong.mp3';
 import gunshotSound from './Sound/gunshot.mp3';
 import gameOverSound from './Sound/gameover.mp3';
 import slytherinSound from './Sound/Slytherin.mp3';
+import { createClient } from '@supabase/supabase-js'
 
 // Made by Vandit Jain (@Theonedit) - Crafted on cursor.ai, powered by claude-3.5-sonnet, and fueled by green ball bursting enthusiasm!
 
@@ -12,6 +13,26 @@ const GREEN_COLOR = '#eaff0c';
 const GAME_DURATION = 60000; // 1 minute in milliseconds
 const BALL_SIZE = 20; // Assuming the ball size is 20px as per CSS
 const BIG_BALL_SIZE = 50; // Size for the big green balls
+
+console.log('All environment variables:', process.env);
+console.log('REACT_APP_SUPABASE_URL:', process.env.REACT_APP_SUPABASE_URL);
+console.log('REACT_APP_SUPABASE_ANON_KEY:', process.env.REACT_APP_SUPABASE_ANON_KEY ? 'Exists' : 'Missing');
+
+if (!process.env.REACT_APP_SUPABASE_URL) {
+  process.env.REACT_APP_SUPABASE_URL = 'https://ixcbqoqbjzijnoodhvum.supabase.co';
+}
+if (!process.env.REACT_APP_SUPABASE_ANON_KEY) {
+  process.env.REACT_APP_SUPABASE_ANON_KEY = 'your_actual_anon_key'; // Replace with your actual key
+}
+
+const supabaseUrl = process.env.REACT_APP_SUPABASE_URL
+const supabaseKey = process.env.REACT_APP_SUPABASE_ANON_KEY
+
+console.log('Supabase URL:', supabaseUrl);
+console.log('Supabase Key exists:', !!supabaseKey);
+
+const supabase = createClient(supabaseUrl, supabaseKey);
+console.log('Supabase client initialized:', !!supabase);
 
 function App() {
   const [level, setLevel] = useState(1);
@@ -36,6 +57,7 @@ function App() {
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
   const [gameOver, setGameOver] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   const endGame = useCallback(() => {
     setGameOver(true);
@@ -49,13 +71,49 @@ function App() {
     setDarkMode(false);
   }, [setGameOver, setGameStarted, setBackgroundColor, setDarkMode]);
 
-  useEffect(() => {
-    // Load leaderboard from localStorage when component mounts
-    const savedLeaderboard = localStorage.getItem('leaderboard');
-    if (savedLeaderboard) {
-      setLeaderboard(JSON.parse(savedLeaderboard));
+  const fetchLeaderboard = useCallback(async () => {
+    console.log('fetchLeaderboard called');
+    setIsLoading(true);
+    if (!supabase) {
+      console.error('Supabase client is not initialized');
+      setIsLoading(false);
+      return;
     }
-  }, []);
+
+    try {
+      console.log('Fetching leaderboard...');
+      const { data, error } = await supabase
+        .from('BGB Leaderboard')
+        .select('*')
+        .order('Score', { ascending: false })
+        .limit(100);
+      
+      console.log('Raw Supabase response:', { data, error });
+      
+      if (error) {
+        console.error('Error fetching leaderboard:', error);
+        console.error('Error details:', error.details, error.hint, error.message);
+      } else if (data) {
+        console.log('Fetched leaderboard data:', data);
+        console.log('Number of entries:', data.length);
+        setLeaderboard(data);
+      } else {
+        console.log('No data returned from Supabase');
+      }
+    } catch (error) {
+      console.error('Unexpected error fetching leaderboard:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [supabase]);
+
+  useEffect(() => {
+    fetchLeaderboard();
+  }, [fetchLeaderboard]);
+
+  useEffect(() => {
+    console.log('Leaderboard state updated:', leaderboard);
+  }, [leaderboard]);
 
   useEffect(() => {
     if (gameStarted && timeLeft > 0) {
@@ -270,33 +328,6 @@ function App() {
     return finalScoreBalls;
   };
 
-  const goHome = () => {
-    setGameStarted(false);
-    setGameOver(false);
-    setShowLeaderboard(false);
-    audioRef.current.pause();
-    audioRef.current.currentTime = 0;
-    slytherinAudioRef.current.pause();
-    slytherinAudioRef.current.currentTime = 0;
-    setGameMode('normal');
-    setBackgroundColor(darkMode ? 'black' : 'white');
-  };
-
-  const submitToLeaderboard = () => {
-    const newEntry = {
-      name: playerName,
-      twitter: playerTwitter,
-      country: playerCountry,
-      score: score,
-      gameMode: gameMode
-    };
-    const updatedLeaderboard = [...leaderboard, newEntry].sort((a, b) => b.score - a.score);
-    setLeaderboard(updatedLeaderboard);
-    // Save updated leaderboard to localStorage
-    localStorage.setItem('leaderboard', JSON.stringify(updatedLeaderboard));
-    setShowLeaderboard(true);
-  };
-
   const renderLeaderboardBalls = (score) => {
     const rows = Math.ceil(score / 20);
     return (
@@ -320,6 +351,61 @@ function App() {
       </div>
     );
   };
+
+  const goHome = () => {
+    setGameStarted(false);
+    setGameOver(false);
+    setShowLeaderboard(false);
+    audioRef.current.pause();
+    audioRef.current.currentTime = 0;
+    slytherinAudioRef.current.pause();
+    slytherinAudioRef.current.currentTime = 0;
+    setGameMode('normal');
+    setBackgroundColor(darkMode ? 'black' : 'white');
+  };
+
+  const submitToLeaderboard = async () => {
+    if (!supabase) {
+      console.error('Supabase client is not initialized');
+      alert('Unable to submit score due to a configuration error. Please try again later.');
+      return;
+    }
+
+    const newEntry = {
+      Name: playerName,
+      Country: playerCountry,
+      Score: score,
+      "Game Mode": gameMode.toLowerCase(),
+      Twitter: playerTwitter,
+    }
+
+    console.log('Attempting to submit:', newEntry);
+
+    try {
+      const { data, error } = await supabase
+        .from('BGB Leaderboard')
+        .insert([newEntry]);
+
+      console.log('Insert response:', { data, error });
+
+      if (error) {
+        console.error('Detailed error:', error);
+        console.error('Error code:', error.code);
+        console.error('Error message:', error.message);
+        console.error('Error details:', error.details);
+        alert('Failed to submit score. Error: ' + error.message);
+      } else {
+        console.log('Score submitted successfully:', data);
+        alert('Score submitted successfully!');
+        
+        // Fetch updated leaderboard immediately
+        fetchLeaderboard();
+      }
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      alert('An unexpected error occurred. Please try again.');
+    }
+  }
 
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
@@ -410,23 +496,25 @@ function App() {
       >
         Home
       </button>
-      <button 
-        onClick={toggleDarkMode}
-        style={{
-          position: 'absolute',
-          top: '10px',
-          left: '100px',
-          padding: '10px',
-          fontSize: '16px',
-          cursor: 'pointer',
-          backgroundColor: darkMode ? 'white' : 'black',
-          color: darkMode ? 'black' : 'white',
-          border: '1px solid black',
-          fontFamily: "'Dracula', sans-serif"
-        }}
-      >
-        {darkMode ? 'Light Mode' : 'Dark Mode'}
-      </button>
+      {(!isMobile || !gameStarted) && (
+        <button 
+          onClick={toggleDarkMode}
+          style={{
+            position: 'absolute',
+            top: '10px',
+            left: '100px',
+            padding: '10px',
+            fontSize: '16px',
+            cursor: 'pointer',
+            backgroundColor: darkMode ? 'white' : 'black',
+            color: darkMode ? 'black' : 'white',
+            border: '1px solid black',
+            fontFamily: "'Dracula', sans-serif"
+          }}
+        >
+          {darkMode ? 'Light Mode' : 'Dark Mode'}
+        </button>
+      )}
       {gameStarted && (
         <button 
           onClick={startGame}
@@ -555,34 +643,42 @@ function App() {
       ) : showLeaderboard ? (
         <div className="leaderboard" style={{ backgroundColor: darkMode ? '#333' : 'white', color: 'black', fontFamily: 'Roboto, sans-serif' }}>
           <h2 style={{ fontFamily: 'Permanent Marker, cursive' }}>Leaderboard</h2>
-          <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px', textAlign: 'center' }}>
-            <thead>
-              <tr style={{ backgroundColor: darkMode ? '#444' : '#f2f2f2' }}>
-                <th style={{ padding: '12px', borderBottom: `1px solid ${darkMode ? 'white' : '#ddd'}` }}>Rank</th>
-                <th style={{ padding: '12px', borderBottom: `1px solid ${darkMode ? 'white' : '#ddd'}` }}>Name</th>
-                <th style={{ padding: '12px', borderBottom: `1px solid ${darkMode ? 'white' : '#ddd'}` }}>Twitter</th>
-                <th style={{ padding: '12px', borderBottom: `1px solid ${darkMode ? 'white' : '#ddd'}` }}>Country</th>
-                <th style={{ padding: '12px', borderBottom: `1px solid ${darkMode ? 'white' : '#ddd'}` }}>Score</th>
-                <th style={{ padding: '12px', borderBottom: `1px solid ${darkMode ? 'white' : '#ddd'}` }}>Game Mode</th>
-                <th style={{ padding: '12px', borderBottom: `1px solid ${darkMode ? 'white' : '#ddd'}` }}>Green Balls</th>
-              </tr>
-            </thead>
-            <tbody>
-              {leaderboard.map((entry, index) => (
-                <tr key={index} style={{ backgroundColor: index % 2 === 0 ? '#f8f8f8' : 'white' }}>
-                  <td style={{ padding: '12px', borderBottom: '1px solid #ddd' }}>{index + 1}</td>
-                  <td style={{ padding: '12px', borderBottom: '1px solid #ddd' }}>{entry.name}</td>
-                  <td style={{ padding: '12px', borderBottom: '1px solid #ddd' }}>{entry.twitter}</td>
-                  <td style={{ padding: '12px', borderBottom: '1px solid #ddd' }}>{entry.country}</td>
-                  <td style={{ padding: '12px', borderBottom: '1px solid #ddd' }}>{entry.score}</td>
-                  <td style={{ padding: '12px', borderBottom: '1px solid #ddd' }}>
-                    {getGameModeIcon(entry.gameMode)} {entry.gameMode}
-                  </td>
-                  <td style={{ padding: '12px', borderBottom: '1px solid #ddd' }}>{renderLeaderboardBalls(entry.score)}</td>
+          {console.log('Rendering leaderboard component')}
+          {console.log('Leaderboard state:', leaderboard)}
+          {isLoading ? (
+            <p>Loading leaderboard data...</p>
+          ) : leaderboard.length === 0 ? (
+            <p>No leaderboard data available. Length: {leaderboard.length}</p>
+          ) : (
+            <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px', textAlign: 'center' }}>
+              <thead>
+                <tr style={{ backgroundColor: darkMode ? '#444' : '#f2f2f2' }}>
+                  <th style={{ padding: '12px', borderBottom: `1px solid ${darkMode ? 'white' : '#ddd'}` }}>Rank</th>
+                  <th style={{ padding: '12px', borderBottom: `1px solid ${darkMode ? 'white' : '#ddd'}` }}>Name</th>
+                  <th style={{ padding: '12px', borderBottom: `1px solid ${darkMode ? 'white' : '#ddd'}` }}>Twitter</th>
+                  <th style={{ padding: '12px', borderBottom: `1px solid ${darkMode ? 'white' : '#ddd'}` }}>Country</th>
+                  <th style={{ padding: '12px', borderBottom: `1px solid ${darkMode ? 'white' : '#ddd'}` }}>Score</th>
+                  <th style={{ padding: '12px', borderBottom: `1px solid ${darkMode ? 'white' : '#ddd'}` }}>Game Mode</th>
+                  <th style={{ padding: '12px', borderBottom: `1px solid ${darkMode ? 'white' : '#ddd'}` }}>Green Balls</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {leaderboard.map((entry, index) => (
+                  <tr key={index} style={{ backgroundColor: index % 2 === 0 ? '#f8f8f8' : 'white' }}>
+                    <td style={{ padding: '12px', borderBottom: '1px solid #ddd' }}>{index + 1}</td>
+                    <td style={{ padding: '12px', borderBottom: '1px solid #ddd' }}>{entry.Name}</td>
+                    <td style={{ padding: '12px', borderBottom: '1px solid #ddd' }}>{entry.Twitter}</td>
+                    <td style={{ padding: '12px', borderBottom: '1px solid #ddd' }}>{entry.Country}</td>
+                    <td style={{ padding: '12px', borderBottom: '1px solid #ddd' }}>{entry.Score}</td>
+                    <td style={{ padding: '12px', borderBottom: '1px solid #ddd' }}>
+                      {getGameModeIcon(entry["Game Mode"])} {entry["Game Mode"]}
+                    </td>
+                    <td style={{ padding: '12px', borderBottom: '1px solid #ddd' }}>{renderLeaderboardBalls(entry.Score)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
           <button onClick={startGame} style={{ marginTop: '20px', padding: '10px', fontSize: '16px', cursor: 'pointer' }}>Play Again</button>
         </div>
       ) : (
@@ -609,32 +705,39 @@ function App() {
             bottom: '10px',
             left: '50%',
             transform: 'translateX(-50%)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
             zIndex: 10,
           }}>
-            {renderScoreBalls()}
+            <button 
+              onClick={endGame}
+              style={{
+                padding: isMobile ? '5px' : '10px',
+                fontSize: isMobile ? '14px' : '16px',
+                cursor: 'pointer',
+                marginBottom: '10px', // Add space between button and score balls
+              }}
+            >
+              End Game
+            </button>
+            <div>
+              {renderScoreBalls()}
+            </div>
           </div>
-          <button 
-            onClick={endGame}
-            style={{
-              marginTop: isMobile ? '10px' : '20px',
-              padding: isMobile ? '5px' : '10px',
-              fontSize: isMobile ? '14px' : '16px',
-              cursor: 'pointer'
-            }}
-          >
-            End Game
-          </button>
-          <div style={{
-            position: 'absolute',
-            bottom: '10px',
-            right: '10px',
-            fontSize: '14px',
-            color: '#333',
-            zIndex: 10,
-            textShadow: '1px 1px 2px white',
-          }}>
-            With 💚 Vandit Jain @Theonedit, Cursor + Claude = Magic
-          </div>
+          {!isMobile && (
+            <div style={{
+              position: 'absolute',
+              bottom: '10px',
+              right: '10px',
+              fontSize: '14px',
+              color: '#333',
+              zIndex: 10,
+              textShadow: '1px 1px 2px white',
+            }}>
+              With 💚 Vandit Jain @Theonedit, Cursor + Claude = Magic
+            </div>
+          )}
           {gameOver && (
             <div className="game-over-popup" style={{
               position: 'fixed',
