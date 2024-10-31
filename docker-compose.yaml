@@ -1,0 +1,27 @@
+services:
+  app-dev:
+    container_name: app-dev
+    image: ghcr.io/vandit296/vandit-jain:dev
+    env_file:
+      - .env
+    build:
+      target: build
+      context: .
+    volumes:
+      - ./src:/app/src
+    ports:
+      - "8080:3000"
+
+  app-deploy:
+    container_name: app-deploy
+    image: ghcr.io/vandit296/vandit-jain:latest
+    restart: always
+    env_file:
+      - .env
+    build:
+      target: deploy
+      context: .
+      args:
+        - NODE_ENV=production
+    ports:
+      - "8080:8080"
