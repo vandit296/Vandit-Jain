@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import './App.css';
+import TwitterVideoScraper from './components/TwitterVideoScraper';
 import tikTokSound from './Sound/tiktok.mp3';
 import wrongSound from './Sound/wrong.mp3';
 import gunshotSound from './Sound/gunshot.mp3';
@@ -35,6 +36,7 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 console.log('Supabase client initialized:', !!supabase);
 
 function App() {
+  const [showScraper, setShowScraper] = useState(false);
   const [level, setLevel] = useState(1);
   const [score, setScore] = useState(0);
   const [timeLeft, setTimeLeft] = useState(GAME_DURATION);
@@ -473,10 +475,37 @@ function App() {
     };
   };
 
+  if (showScraper) {
+    return (
+      <div>
+        <button
+          onClick={() => setShowScraper(false)}
+          style={{
+            position: 'fixed',
+            top: '12px',
+            left: '12px',
+            zIndex: 9999,
+            padding: '8px 16px',
+            background: '#1d9bf0',
+            color: '#fff',
+            border: 'none',
+            borderRadius: '20px',
+            fontWeight: 700,
+            cursor: 'pointer',
+            fontSize: '0.85rem',
+          }}
+        >
+          ← Back to Game
+        </button>
+        <TwitterVideoScraper />
+      </div>
+    );
+  }
+
   return (
-    <div className="App" style={{ 
-      backgroundColor: (gameMode === 'beast' || gameMode === 'slytherin') ? backgroundColor : (darkMode ? 'black' : 'white'), 
-      color: darkMode ? 'white' : 'black', 
+    <div className="App" style={{
+      backgroundColor: (gameMode === 'beast' || gameMode === 'slytherin') ? backgroundColor : (darkMode ? 'black' : 'white'),
+      color: darkMode ? 'white' : 'black',
       fontFamily: 'Lato, sans-serif',
       ...getMobileStyles() // Apply mobile styles
     }}>
@@ -636,6 +665,23 @@ function App() {
             </button>
           </div>
           {renderBigGreenBalls()}
+          <button
+            onClick={() => setShowScraper(true)}
+            style={{
+              marginTop: '16px',
+              padding: '10px 20px',
+              fontSize: '15px',
+              cursor: 'pointer',
+              background: '#000',
+              color: '#fff',
+              border: 'none',
+              borderRadius: '20px',
+              fontWeight: 700,
+              letterSpacing: '0.02em',
+            }}
+          >
+            𝕏 Launch Video Timeline
+          </button>
           <div className="credits" style={{ fontSize: isMobile ? '0.8rem' : '1rem' }}>
             Made with 💚 by Vandit Jain @Theonedit, powered by Cursor + Claude = Magic
           </div>

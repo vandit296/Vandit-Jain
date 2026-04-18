@@ -1,0 +1,382 @@
+/* Twitter/X Video Scraper Styles */
+.tws {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 16px;
+  background: #0f1419;
+  color: #e7e9ea;
+  min-height: 100vh;
+}
+
+.tws__header {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.tws__title {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0 0 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.tws__x-icon {
+  font-size: 1.8rem;
+  background: #000;
+  color: #fff;
+  border-radius: 50%;
+  padding: 2px 8px;
+}
+
+.tws__subtitle {
+  color: #71767b;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+/* Toolbar */
+.tws__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 20px;
+  background: #16181c;
+  border: 1px solid #2f3336;
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+
+.tws__search {
+  flex: 1;
+  min-width: 180px;
+  background: #202327;
+  border: 1px solid #2f3336;
+  border-radius: 20px;
+  padding: 8px 16px;
+  color: #e7e9ea;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.tws__search:focus {
+  border-color: #1d9bf0;
+}
+
+.tws__search::placeholder {
+  color: #71767b;
+}
+
+.tws__controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.tws__label {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.72rem;
+  color: #71767b;
+  gap: 3px;
+}
+
+.tws__select {
+  background: #202327;
+  border: 1px solid #2f3336;
+  border-radius: 8px;
+  color: #e7e9ea;
+  padding: 6px 10px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  outline: none;
+}
+
+.tws__select:focus {
+  border-color: #1d9bf0;
+}
+
+.tws__refresh {
+  background: #1d9bf0;
+  color: #fff;
+  border: none;
+  border-radius: 20px;
+  padding: 8px 18px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  align-self: flex-end;
+}
+
+.tws__refresh:hover {
+  background: #1a8cd8;
+}
+
+/* States */
+.tws__state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #71767b;
+}
+
+.tws__state--error {
+  color: #f4212e;
+}
+
+.tws__hint {
+  font-size: 0.85rem;
+  color: #71767b;
+  margin-top: 12px;
+}
+
+.tws__hint code {
+  background: #202327;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+
+.tws__spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid #2f3336;
+  border-top-color: #1d9bf0;
+  border-radius: 50%;
+  margin: 0 auto 16px;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Count */
+.tws__count {
+  font-size: 0.82rem;
+  color: #71767b;
+  margin-bottom: 16px;
+}
+
+/* Grid */
+.tws__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+/* Card */
+.tws-card {
+  background: #16181c;
+  border: 1px solid #2f3336;
+  border-radius: 16px;
+  overflow: hidden;
+  transition: border-color 0.2s, transform 0.15s;
+  display: flex;
+  flex-direction: column;
+}
+
+.tws-card:hover {
+  border-color: #1d9bf0;
+  transform: translateY(-2px);
+}
+
+.tws-card__media {
+  position: relative;
+  aspect-ratio: 16/9;
+  background: #000;
+  overflow: hidden;
+}
+
+.tws-card__video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.tws-card__thumbnail-btn {
+  width: 100%;
+  height: 100%;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  position: relative;
+  background: #000;
+  display: block;
+}
+
+.tws-card__thumbnail {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.tws-card__play-icon {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.35);
+  transition: background 0.2s;
+}
+
+.tws-card__thumbnail-btn:hover .tws-card__play-icon {
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.tws-card__body {
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+}
+
+.tws-card__author {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tws-card__avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.tws-card__name {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #e7e9ea;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.tws-card__verified {
+  color: #1d9bf0;
+  font-size: 0.75rem;
+}
+
+.tws-card__handle {
+  display: block;
+  color: #71767b;
+  font-size: 0.78rem;
+}
+
+.tws-card__text {
+  font-size: 0.88rem;
+  color: #e7e9ea;
+  line-height: 1.5;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.tws-card__meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tws-card__time {
+  font-size: 0.78rem;
+  color: #71767b;
+}
+
+.tws-card__metrics {
+  display: flex;
+  gap: 10px;
+  font-size: 0.78rem;
+  color: #71767b;
+}
+
+.tws-card__link {
+  display: inline-block;
+  font-size: 0.8rem;
+  color: #1d9bf0;
+  text-decoration: none;
+  font-weight: 600;
+  margin-top: auto;
+}
+
+.tws-card__link:hover {
+  text-decoration: underline;
+}
+
+/* Pagination */
+.tws__pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  margin-top: 32px;
+  flex-wrap: wrap;
+}
+
+.tws__page-btn {
+  background: #202327;
+  border: 1px solid #2f3336;
+  color: #e7e9ea;
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.tws__page-btn:hover:not(:disabled) {
+  background: #2f3336;
+  border-color: #1d9bf0;
+}
+
+.tws__page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.tws__page-btn--active {
+  background: #1d9bf0;
+  border-color: #1d9bf0;
+  color: #fff;
+  font-weight: 700;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .tws__title {
+    font-size: 1.4rem;
+  }
+
+  .tws__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tws__toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .tws__controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
