@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import './App.css';
+import WordGame from './WordGame';
 import tikTokSound from './Sound/tiktok.mp3';
 import wrongSound from './Sound/wrong.mp3';
 import gunshotSound from './Sound/gunshot.mp3';
@@ -35,6 +36,7 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 console.log('Supabase client initialized:', !!supabase);
 
 function App() {
+  const [selectedGame, setSelectedGame] = useState(null); // null=launcher, 'bgb'=BGB, 'word'=WordDepth
   const [level, setLevel] = useState(1);
   const [score, setScore] = useState(0);
   const [timeLeft, setTimeLeft] = useState(GAME_DURATION);
@@ -473,14 +475,84 @@ function App() {
     };
   };
 
+  // ── Game launcher ──
+  if (selectedGame === null) {
+    return (
+      <div style={{
+        minHeight: '100vh',
+        background: '#0a0a0a',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '24px',
+        fontFamily: 'Lato, sans-serif',
+        padding: '20px',
+        boxSizing: 'border-box',
+      }}>
+        <h1 style={{ color: '#fff', fontSize: '1.6rem', fontWeight: 900, margin: 0, letterSpacing: '-0.5px' }}>
+          Choose a Game
+        </h1>
+
+        {/* BGB card */}
+        <div
+          onClick={() => setSelectedGame('bgb')}
+          style={{
+            width: '100%',
+            maxWidth: '420px',
+            background: '#111',
+            border: '1px solid #1f1f1f',
+            borderRadius: '12px',
+            padding: '24px 28px',
+            cursor: 'pointer',
+            transition: 'border-color 0.2s',
+          }}
+          onMouseEnter={e => e.currentTarget.style.borderColor = '#eaff0c'}
+          onMouseLeave={e => e.currentTarget.style.borderColor = '#1f1f1f'}
+        >
+          <div style={{ fontSize: '1.5rem', marginBottom: '6px' }}>🟢 BGB — Burst Green Balls</div>
+          <div style={{ color: '#666', fontSize: '0.9rem' }}>
+            Click the green balls as fast as you can. 60 seconds. How many can you spot?
+          </div>
+        </div>
+
+        {/* WordDepth card */}
+        <div
+          onClick={() => setSelectedGame('word')}
+          style={{
+            width: '100%',
+            maxWidth: '420px',
+            background: '#111',
+            border: '1px solid #1f1f1f',
+            borderRadius: '12px',
+            padding: '24px 28px',
+            cursor: 'pointer',
+            transition: 'border-color 0.2s',
+          }}
+          onMouseEnter={e => e.currentTarget.style.borderColor = '#a855f7'}
+          onMouseLeave={e => e.currentTarget.style.borderColor = '#1f1f1f'}
+        >
+          <div style={{ fontSize: '1.5rem', marginBottom: '6px' }}>🧠 WordDepth <span style={{ fontSize: '0.75rem', color: '#a855f7', fontWeight: 700, verticalAlign: 'middle' }}>NEW</span></div>
+          <div style={{ color: '#666', fontSize: '0.9rem' }}>
+            A word appears. Type a related word. The more unique your association — the higher your score. Show off your thinking depth.
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (selectedGame === 'word') {
+    return <WordGame onBack={() => setSelectedGame(null)} />;
+  }
+
   return (
-    <div className="App" style={{ 
-      backgroundColor: (gameMode === 'beast' || gameMode === 'slytherin') ? backgroundColor : (darkMode ? 'black' : 'white'), 
-      color: darkMode ? 'white' : 'black', 
+    <div className="App" style={{
+      backgroundColor: (gameMode === 'beast' || gameMode === 'slytherin') ? backgroundColor : (darkMode ? 'black' : 'white'),
+      color: darkMode ? 'white' : 'black',
       fontFamily: 'Lato, sans-serif',
       ...getMobileStyles() // Apply mobile styles
     }}>
-      <button 
+      <button
         onClick={goHome}
         style={{
           position: 'absolute',
@@ -495,6 +567,23 @@ function App() {
         }}
       >
         Home
+      </button>
+      <button
+        onClick={() => { goHome(); setSelectedGame(null); }}
+        style={{
+          position: 'absolute',
+          top: '50px',
+          left: '10px',
+          padding: '6px 10px',
+          fontSize: '12px',
+          cursor: 'pointer',
+          backgroundColor: 'transparent',
+          color: darkMode ? '#888' : '#555',
+          border: '1px solid #ccc',
+          borderRadius: '4px',
+        }}
+      >
+        ← Games
       </button>
       {(!isMobile || !gameStarted) && (
         <button 
